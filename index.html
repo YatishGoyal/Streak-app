@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hearth — Daily Study Streak</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+:root{
+  --bg: #120E0A;
+  --bg-elevated: #1C140E;
+  --bg-card: #221810;
+  --line: rgba(247,239,226,0.08);
+  --line-soft: rgba(247,239,226,0.04);
+
+  --text-hi: #F7EFE2;
+  --text-mid: #C9B8A3;
+  --text-low: #8A7864;
+
+  --ember-1: #7A3B14;   /* stage 1: 0-6 */
+  --ember-1-glow: #C2560F;
+  --ember-2: #E67E22;   /* stage 2: 7-29 */
+  --ember-2-glow: #FF9D3D;
+  --ember-3: #F4A93A;   /* stage 3: 30-99 */
+  --ember-3-glow: #FFC466;
+  --gold-1: #F5C64B;    /* stage 4: 100-364 */
+  --gold-2: #FFE29A;
+  --legend-1: #FFD54A;  /* stage 5: 365+ */
+  --legend-2: #FF8A3D;
+  --legend-aura: #8B6CFF;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+*{ box-sizing: border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(230,126,34,0.10), transparent 60%),
+    var(--bg);
+  color: var(--text-hi);
+  font-family: var(--font-body);
+  min-height:100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x:hidden;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+.app{
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 28px 20px 64px;
+  position: relative;
+}
+
+/* ---------- header ---------- */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 4px 2px 8px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: 0.01em;
+  color: var(--text-hi);
+}
+.brand-mark{
+  width: 22px; height: 22px;
+  display:inline-block;
+}
+.icon-btn{
+  width: 38px; height: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  color: var(--text-mid);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  transition: border-color .2s ease, color .2s ease, transform .15s ease;
+}
+.icon-btn:hover{ color: var(--text-hi); border-color: rgba(247,239,226,0.18); }
+.icon-btn:active{ transform: scale(0.94); }
+.icon-btn svg{ width:16px; height:16px; }
+
+/* ---------- hero ---------- */
+.hero{
+  text-align:center;
+  padding: 18px 0 6px;
+  position: relative;
+}
+
+.flame-stage{
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 6px auto 4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.flame-core{
+  position: relative;
+  width: 92px;
+  height: 118px;
+  transform-origin: 50% 100%;
+  transition: width .6s cubic-bezier(.2,.8,.2,1), height .6s cubic-bezier(.2,.8,.2,1);
+}
+.flame-shape{
+  position:absolute;
+  inset:0;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  filter: blur(0.3px);
+  animation: flicker 2.6s ease-in-out infinite;
+}
+.flame-shape.outer{
+  background: radial-gradient(circle at 50% 70%, var(--ember-1-glow) 0%, var(--ember-1) 55%, transparent 78%);
+  opacity: 0.9;
+}
+.flame-shape.inner{
+  width: 58%; height: 66%;
+  left: 21%; top: 18%;
+  background: radial-gradient(circle at 50% 75%, #FFE9C2 0%, var(--ember-1-glow) 45%, transparent 75%);
+  animation-delay: -0.6s;
+  opacity: 0.85;
+}
+.flame-base-glow{
+  position:absolute;
+  bottom: -18px; left: 50%;
+  width: 140px; height: 60px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, var(--ember-1-glow) 0%, transparent 72%);
+  opacity: 0.35;
+  filter: blur(6px);
+  transition: background .6s ease;
+}
+
+@keyframes flicker{
+  0%,100%{ transform: scale(1,1) skewX(0deg); }
+  20%{ transform: scale(1.03,0.97) skewX(-1.5deg); }
+  45%{ transform: scale(0.97,1.04) skewX(1.5deg); }
+  70%{ transform: scale(1.02,0.98) skewX(-1deg); }
+}
+
+/* stage 2: 7-29 days — bigger, more energetic */
+.flame-stage.stage2 .flame-core{ width: 112px; height: 148px; }
+.flame-stage.stage2 .flame-shape.outer{
+  background: radial-gradient(circle at 50% 70%, var(--ember-2-glow) 0%, var(--ember-2) 55%, transparent 78%);
+}
+.flame-stage.stage2 .flame-shape.inner{
+  background: radial-gradient(circle at 50% 75%, #FFF1D6 0%, var(--ember-2-glow) 45%, transparent 75%);
+}
+.flame-stage.stage2 .flame-shape{ animation-duration: 2s; }
+.flame-stage.stage2 .flame-base-glow{ background: radial-gradient(ellipse, var(--ember-2-glow) 0%, transparent 72%); opacity: 0.45; }
+
+/* stage 3: 30-99 days — glowing particles */
+.flame-stage.stage3 .flame-core{ width: 128px; height: 168px; }
+.flame-stage.stage3 .flame-shape.outer{
+  background: radial-gradient(circle at 50% 70%, var(--ember-3-glow) 0%, var(--ember-3) 55%, transparent 78%);
+}
+.flame-stage.stage3 .flame-shape.inner{
+  background: radial-gradient(circle at 50% 75%, #FFF7E4 0%, var(--ember-3-glow) 45%, transparent 75%);
+}
+.flame-stage.stage3 .flame-shape{ animation-duration: 1.8s; }
+.flame-stage.stage3 .flame-base-glow{ background: radial-gradient(ellipse, var(--ember-3-glow) 0%, transparent 72%); opacity: 0.55; }
+
+/* stage 4: 100-364 — golden */
+.flame-stage.stage4 .flame-core{ width: 140px; height: 182px; }
+.flame-stage.stage4 .flame-shape.outer{
+  background: radial-gradient(circle at 50% 70%, var(--gold-2) 0%, var(--gold-1) 55%, transparent 78%);
+}
+.flame-stage.stage4 .flame-shape.inner{
+  background: radial-gradient(circle at 50% 75%, #FFFBEF 0%, var(--gold-2) 45%, transparent 75%);
+}
+.flame-stage.stage4 .flame-shape{ animation-duration: 1.7s; }
+.flame-stage.stage4 .flame-base-glow{ background: radial-gradient(ellipse, var(--gold-1) 0%, transparent 72%); opacity: 0.6; }
+
+/* stage 5: 365+ — legendary aura */
+.flame-stage.stage5 .flame-core{ width: 154px; height: 198px; }
+.flame-stage.stage5 .flame-shape.outer{
+  background: radial-gradient(circle at 50% 70%, var(--legend-1) 0%, var(--legend-2) 55%, transparent 78%);
+}
+.flame-stage.stage5 .flame-shape.inner{
+  background: radial-gradient(circle at 50% 75%, #FFFDF6 0%, var(--legend-1) 45%, transparent 75%);
+}
+.flame-stage.stage5 .flame-shape{ animation-duration: 1.6s; }
+.flame-stage.stage5 .flame-base-glow{ background: radial-gradient(ellipse, var(--legend-1) 0%, transparent 72%); opacity: 0.7; }
+
+.aura-ring{
+  position:absolute;
+  inset: -6px;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events:none;
+}
+.flame-stage.stage5 .aura-ring{
+  opacity: 1;
+  background: radial-gradient(circle, transparent 48%, rgba(139,108,255,0.22) 60%, transparent 72%);
+  animation: aura-pulse 3.4s ease-in-out infinite;
+}
+@keyframes aura-pulse{
+  0%,100%{ transform: scale(0.96); opacity: 0.6; }
+  50%{ transform: scale(1.06); opacity: 1; }
+}
+
+.particles{ position:absolute; inset:0; pointer-events:none; opacity:0; transition: opacity .6s ease; }
+.flame-stage.stage3 .particles,
+.flame-stage.stage4 .particles,
+.flame-stage.stage5 .particles{ opacity: 1; }
+.particle{
+  position:absolute;
+  bottom: 70px;
+  left: 50%;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--ember-3-glow);
+  animation: rise 3.2s ease-in infinite;
+  opacity: 0;
+}
+.stage4 .particle{ background: var(--gold-2); }
+.stage5 .particle{ background: var(--legend-1); }
+.particle:nth-child(1){ left: 42%; animation-delay: 0s; }
+.particle:nth-child(2){ left: 58%; animation-delay: 0.7s; }
+.particle:nth-child(3){ left: 48%; animation-delay: 1.5s; }
+.particle:nth-child(4){ left: 63%; animation-delay: 2.1s; }
+.particle:nth-child(5){ left: 38%; animation-delay: 0.4s; }
+.particle:nth-child(6){ left: 53%; animation-delay: 1.9s; }
+@keyframes rise{
+  0%{ transform: translate(-50%, 0) scale(0.6); opacity: 0; }
+  15%{ opacity: 0.9; }
+  100%{ transform: translate(-50%, -150px) scale(0.2); opacity: 0; }
+}
+
+/* streak number */
+.streak-block{ margin-top: 6px; }
+.streak-number{
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-hi);
+  font-variant-numeric: tabular-nums;
+}
+.streak-label{
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-low);
+  margin-top: 6px;
+  font-weight: 600;
+}
+.longest{
+  font-size: 12px;
+  color: var(--text-low);
+  margin-top: 4px;
+}
+.longest strong{ color: var(--text-mid); font-weight: 600; }
+
+/* button */
+.check-in-btn{
+  position: relative;
+  margin: 26px auto 0;
+  display: flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  padding: 17px 20px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(180deg, var(--ember-1-glow), #A8460E);
+  color: #FFF3E6;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -8px rgba(194,86,15,0.55), inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: transform .15s ease, box-shadow .3s ease, background .4s ease;
+}
+.check-in-btn:hover{ transform: translateY(-1px); }
+.check-in-btn:active{ transform: translateY(0) scale(0.98); }
+.check-in-btn:disabled{ cursor: default; }
+
+.check-in-btn.done{
+  background: linear-gradient(180deg, #3C4A3A, #2A362A);
+  box-shadow: 0 10px 24px -10px rgba(58,90,58,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
+  color: #D9F0D6;
+}
+.check-in-btn .btn-icon{ width: 18px; height: 18px; flex-shrink:0; }
+.check-in-btn .check-mark{
+  transform: scale(0);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.check-in-btn.done .check-mark{ transform: scale(1); }
+.check-in-btn.done .flame-icon{ display:none; }
+.check-in-btn:not(.done) .check-mark{ display:none; }
+
+.check-in-btn.pulse{ animation: btn-pulse .5s ease; }
+@keyframes btn-pulse{
+  0%{ transform: scale(1); }
+  40%{ transform: scale(0.94); }
+  70%{ transform: scale(1.03); }
+  100%{ transform: scale(1); }
+}
+
+/* message */
+.message-wrap{
+  min-height: 54px;
+  margin-top: 18px;
+  padding: 0 12px;
+}
+.message-text{
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text-mid);
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.message-text.show{ opacity: 1; transform: translateY(0); color: var(--text-hi); }
+
+/* hearth grid */
+.hearth-section{
+  margin-top: 40px;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+.hearth-heading{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom: 14px;
+}
+.hearth-heading h2{
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+.hearth-heading span{
+  font-size: 12px;
+  color: var(--text-low);
+  font-family: var(--font-mono);
+}
+.hearth-grid{
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 5px;
+}
+.hearth-cell{
+  aspect-ratio: 1;
+  border-radius: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--line-soft);
+  transition: transform .2s ease;
+}
+.hearth-cell.lit{
+  background: linear-gradient(155deg, var(--ember-2-glow), var(--ember-1));
+  border-color: transparent;
+}
+.hearth-cell.lit.gold{ background: linear-gradient(155deg, var(--gold-2), var(--gold-1)); }
+.hearth-cell.lit.legend{ background: linear-gradient(155deg, var(--legend-1), var(--legend-2)); box-shadow: 0 0 8px rgba(255,213,74,0.5); }
+.hearth-cell.today-cell{ outline: 1.5px solid var(--text-hi); outline-offset: 1px; }
+.hearth-cell.new{ animation: cell-pop .5s cubic-bezier(.34,1.56,.64,1); }
+@keyframes cell-pop{
+  0%{ transform: scale(0.4); }
+  70%{ transform: scale(1.15); }
+  100%{ transform: scale(1); }
+}
+
+.footnote{
+  margin-top: 22px;
+  text-align:center;
+  font-size: 12.5px;
+  color: var(--text-low);
+  line-height: 1.6;
+}
+
+/* confetti */
+#confettiCanvas{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+
+@media (max-width: 380px){
+  .streak-number{ font-size: 52px; }
+  .flame-stage{ width: 180px; height: 180px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C9 6 7 8.5 7 12.5C7 16.6 9.7 19.5 12 21.5C14.3 19.5 17 16.6 17 12.5C17 11 16.5 9.5 15.5 8C15.7 9.5 15.2 10.5 14.5 11C14.7 9 13.7 6.8 12 4.5C11.8 6 11 7 10 7.7C9 8.4 8.3 9.5 8.3 11C8.3 8.5 9.5 6.5 12 2Z" fill="#E67E22"/>
+      </svg>
+      Hearth
+    </div>
+    <button class="icon-btn" id="muteBtn" title="Toggle sound" aria-label="Toggle sound">
+      <svg id="soundOnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>
+      <svg id="soundOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+    </button>
+  </div>
+
+  <div class="hero">
+    <div class="flame-stage stage1" id="flameStage">
+      <div class="aura-ring"></div>
+      <div class="particles">
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+      </div>
+      <div class="flame-core">
+        <div class="flame-shape outer"></div>
+        <div class="flame-shape inner"></div>
+        <div class="flame-base-glow"></div>
+      </div>
+    </div>
+
+    <div class="streak-block">
+      <div class="streak-number" id="streakNumber">0</div>
+      <div class="streak-label" id="streakLabel">day streak</div>
+      <div class="longest" id="longestLine"></div>
+    </div>
+
+    <button class="check-in-btn" id="checkInBtn">
+      <svg class="btn-icon flame-icon" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C9 6 7 8.5 7 12.5C7 16.6 9.7 19.5 12 21.5C14.3 19.5 17 16.6 17 12.5C17 11 16.5 9.5 15.5 8C15.7 9.5 15.2 10.5 14.5 11C14.7 9 13.7 6.8 12 4.5C11.8 6 11 7 10 7.7C9 8.4 8.3 9.5 8.3 11C8.3 8.5 9.5 6.5 12 2Z" fill="currentColor"/>
+      </svg>
+      <svg class="btn-icon check-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      <span id="btnLabel">I Studied Today</span>
+    </button>
+
+    <div class="message-wrap">
+      <div class="message-text" id="messageText"></div>
+    </div>
+  </div>
+
+  <div class="hearth-section">
+    <div class="hearth-heading">
+      <h2>Your hearth</h2>
+      <span id="hearthRange">last 12 weeks</span>
+    </div>
+    <div class="hearth-grid" id="hearthGrid"></div>
+  </div>
+
+  <div class="footnote">Miss a day and the flame simply waits to be lit again.<br>No penalties here — only what you build.</div>
+</div>
+
+<canvas id="confettiCanvas"></canvas>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- message pools ---------------- */
+  var MILESTONES = {
+    1: "You showed up. That's how every journey begins.",
+    2: "Consistency is stronger than motivation.",
+    3: "Three days. The pattern is starting to notice itself.",
+    5: "Five days. Your future self noticed.",
+    7: "One full week. The flame is no longer a spark.",
+    10: "You're becoming someone who keeps promises to themselves.",
+    14: "Two weeks in. This is starting to look like who you are.",
+    21: "Three weeks. They say this is where habits take root.",
+    25: "A quarter century of days. Steady hands built this.",
+    30: "One month. This isn't luck anymore. It's discipline.",
+    40: "Forty days. Deserts have been crossed in less.",
+    50: "Most people quit. You didn't.",
+    60: "Two months of showing up. Nobody handed you this.",
+    75: "Seventy-five days. You've outlasted every excuse you had.",
+    90: "Ninety days. A season, entirely yours.",
+    100: "Triple digits. You're no longer building a habit. You're building your identity.",
+    120: "Four months. The version of you that skips days doesn't exist anymore.",
+    150: "One hundred fifty days. This is just what you do now.",
+    180: "Half a year. You could stop. You won't.",
+    200: "Two hundred days. The math stopped being the point a while ago.",
+    250: "Two hundred fifty. Rare air.",
+    300: "Three hundred days. Almost the whole year, held in your hands.",
+    365: "A full year. Every single day, you chose this.",
+    500: "Five hundred days. This isn't a streak anymore. It's a life.",
+    600: "Six hundred days. Most people never see this number.",
+    730: "Two years. You didn't just build a habit — you became one.",
+    1000: "One thousand days. There isn't a word big enough for this."
+  };
+
+  var GENERAL = [
+    "You showed up again. That's the whole game.",
+    "Another day, another rep in the only workout that compounds.",
+    "You didn't wait to feel ready. You just started.",
+    "Showing up on the easy days is what makes the hard days possible.",
+    "No fanfare needed. You just did the thing.",
+    "You kept the appointment with yourself.",
+    "Today you chose your own back over your own excuses.",
+    "Some days it's easy. Today, you made it easy.",
+    "You didn't need a reason. You just needed to open the book.",
+    "That's two feet through the door, same as yesterday.",
+    "You clocked in before anyone asked you to.",
+    "The work got done. Nobody had to remind you.",
+    "You met yourself at the desk again.",
+    "Same time, same you, one more day of proof.",
+    "You didn't skip. That's the whole story today.",
+    "Every session is a vote for who you're becoming.",
+    "You're not just studying. You're rehearsing a version of yourself.",
+    "This is what 'disciplined' looks like from the inside — unremarkable, repeated.",
+    "You are quietly turning into someone who doesn't quit.",
+    "The person who does this every day is the person you're building.",
+    "You're not chasing a grade. You're casting a character.",
+    "This is identity, one small decision at a time.",
+    "You're not 'trying to be' consistent. You just were, again.",
+    "Nobody sees this moment. It's shaping you anyway.",
+    "You're writing your own reputation, one day at a time.",
+    "This is what becoming looks like before anyone notices.",
+    "You keep doing this, and eventually it stops being a choice.",
+    "Somewhere in these small days, a different person is forming.",
+    "You're not performing discipline. You're living it.",
+    "One more brick in a wall only you can see yet.",
+    "No applause required. You did it anyway.",
+    "Discipline doesn't ask for witnesses.",
+    "Motivation left the building. You stayed.",
+    "This is the boring, unglamorous part that actually works.",
+    "Nobody's watching, and you showed up regardless.",
+    "You didn't need to feel inspired. You just needed to sit down.",
+    "The quiet ones are the ones that compound.",
+    "You picked structure over mood today. That's rare.",
+    "Discipline is just this, over and over, until it isn't hard.",
+    "You made a promise to a version of yourself that isn't watching. You kept it.",
+    "This wasn't exciting. It was necessary. You did it.",
+    "Nothing dramatic happened today. That's exactly the point.",
+    "You chose the unglamorous rep, again.",
+    "The habit doesn't care how you felt. Neither did you.",
+    "Small, steady, unremarkable — and exactly right.",
+    "The wheel keeps turning because you keep pushing.",
+    "You didn't let the streak go cold.",
+    "Momentum is just yesterday, plus today.",
+    "You added another link to a chain that's getting hard to ignore.",
+    "The hardest part was never today — it was starting. You're past that.",
+    "Every day you continue, the next day gets a little easier to choose.",
+    "You're not starting anymore. You're continuing.",
+    "The streak isn't the point. But it's a nice signature of the point.",
+    "You kept the engine warm.",
+    "One more day the chain didn't break.",
+    "You're riding your own momentum now.",
+    "The hard part is behind you: you already began. Today you just kept going.",
+    "You gave tomorrow's you a running start.",
+    "This is what compounding looks like in real time.",
+    "You didn't reset. You built.",
+    "Small, on time, and done. That counts.",
+    "It didn't have to be big. It just had to happen.",
+    "A short session today still moves the needle.",
+    "Progress doesn't always look dramatic. Today it looked like this.",
+    "You don't need a marathon every day. Today, a walk was enough.",
+    "Small deposits, real interest.",
+    "This one counts exactly as much as your longest session ever did.",
+    "You didn't overthink it. You just did the small true thing.",
+    "Not every day needs to be a breakthrough. Today just needed to happen.",
+    "A five-minute win is still a win.",
+    "You kept the standard low enough to clear it, and cleared it.",
+    "The bar was 'show up.' You cleared it.",
+    "This wasn't your best day. It was still a good one.",
+    "Modest effort, real credit.",
+    "You didn't wait for the perfect session. You took the honest one.",
+    "Somewhere down the line, this is the day that mattered.",
+    "Future you is quietly grateful.",
+    "You just did a favor for someone you haven't met yet — future you.",
+    "This is a gift with delayed delivery.",
+    "You're stacking days that future you will thank you for.",
+    "The version of you six months from now was just built a little more.",
+    "You're investing in someone who isn't here yet: tomorrow's you.",
+    "Later, this will look like the beginning of something.",
+    "You can't see the payoff yet. It's accumulating anyway.",
+    "This is the kind of day nobody remembers, and everybody benefits from.",
+    "You're planting something you won't see bloom for a while.",
+    "Today's effort is tomorrow's foundation.",
+    "Future you doesn't know your name for this feeling. They'll just feel ready.",
+    "You just made next month's version of you a little more capable.",
+    "This is what preparing in advance actually looks like.",
+    "Consistency beat intensity again today.",
+    "You didn't need to go hard. You needed to go anyway.",
+    "Slow and steady is still moving.",
+    "This isn't about doing more. It's about doing it again.",
+    "You chose 'every day' over 'someday.'",
+    "Regular beats occasional, every single time.",
+    "You picked the boring strategy that actually wins.",
+    "Showing up beats showing off.",
+    "Steady effort doesn't need to be loud to work.",
+    "You didn't sprint. You paced. That's how this gets won.",
+    "The tortoise called. It says thanks for the reminder.",
+    "You're not racing anyone. You're just not stopping.",
+    "This is the unsexy secret: just don't skip.",
+    "Reliable, not flashy. That's the winning formula.",
+    "You showed up like it was routine. That's the goal.",
+    "That's one more thing you can be quietly proud of.",
+    "Nobody needs to know. You know.",
+    "You earned a small, private satisfaction today.",
+    "That's a good day's work, no asterisk needed.",
+    "You can close the book knowing you did what you said you'd do.",
+    "A little pride is allowed here.",
+    "You kept your word to yourself. That's worth something.",
+    "Today, you didn't let yourself down.",
+    "You did right by your own standards.",
+    "That's a promise kept, plain and simple.",
+    "You gave yourself a reason to trust you.",
+    "Quiet win. Real one.",
+    "You showed up for you. That matters more than it feels like.",
+    "This one's just for you to know about.",
+    "You did the thing you said you'd do. That's enough.",
+    "The flame's still lit because you keep feeding it.",
+    "One more log on the fire.",
+    "You kept the ember from going out.",
+    "The fire doesn't ask for much — just this, every day.",
+    "You tended to something today. It shows.",
+    "A small flame, kept alive on purpose.",
+    "The fire doesn't burn itself. You do that part.",
+    "You gave the flame one more reason to keep going.",
+    "Warmth doesn't happen by accident. You made it happen.",
+    "This is how fires become forges.",
+    "You didn't let it go cold.",
+    "Every check-in is a log on the fire. This was yours.",
+    "The glow is a little steadier today, because of this.",
+    "Small flame, deliberate hands.",
+    "You're the reason this is still burning.",
+    "This is becoming a rhythm now, not an effort.",
+    "The ritual holds. You showed up for it.",
+    "Same time, same ritual, same you keeping the promise.",
+    "This is turning into something you just do.",
+    "The rhythm doesn't break because you don't let it.",
+    "You kept the beat today.",
+    "This is less a task now and more a habit finding its shape.",
+    "The ritual is simple: sit down, begin, finish. You did all three.",
+    "You're building a rhythm most people never find.",
+    "It's starting to feel less like discipline and more like Tuesday.",
+    "The pattern holds because you hold it.",
+    "You showed up for the ritual, and the ritual showed up for you.",
+    "This is what rhythm looks like before it's called a habit.",
+    "One more note in a song only you can hear yet.",
+    "The ritual doesn't ask twice. You didn't make it."
+  ];
+
+  /* ---------------- state ---------------- */
+  var STORE_KEY = "hearth_streak_data";
+  var canvas = document.getElementById('confettiCanvas');
+  var ctx = canvas.getContext('2d');
+  var state = null;
+
+  function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function todayStr(d){
+    d = d || new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth()+1).padStart(2,'0');
+    var day = String(d.getDate()).padStart(2,'0');
+    return y+'-'+m+'-'+day;
+  }
+  function parseDate(s){
+    var p = s.split('-');
+    return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+  }
+  function daysBetween(a,b){
+    var A = parseDate(a), B = parseDate(b);
+    return Math.round((B-A)/86400000);
+  }
+  function addDays(dateStr, n){
+    var d = parseDate(dateStr);
+    d.setDate(d.getDate()+n);
+    return todayStr(d);
+  }
+
+  function defaultState(){
+    return {
+      streak: 0,
+      longest: 0,
+      lastCheckIn: null,
+      history: [],
+      queue: [],
+      muted: false
+    };
+  }
+
+  function shuffledIndices(len){
+    var arr = [];
+    for(var i=0;i<len;i++) arr.push(i);
+    for(var i=arr.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t = arr[i]; arr[i]=arr[j]; arr[j]=t;
+    }
+    return arr;
+  }
+
+  async function loadState(){
+    try{
+      var res = await window.storage.get(STORE_KEY, false);
+      if(res && res.value){
+        var parsed = JSON.parse(res.value);
+        return Object.assign(defaultState(), parsed);
+      }
+    }catch(e){ /* no existing key */ }
+    return defaultState();
+  }
+
+  async function saveState(){
+    try{
+      await window.storage.set(STORE_KEY, JSON.stringify(state), false);
+    }catch(e){ console.error('storage save failed', e); }
+  }
+
+  function nextMessage(streakCount){
+    if(MILESTONES[streakCount]) return MILESTONES[streakCount];
+    if(!state.queue || state.queue.length === 0){
+      state.queue = shuffledIndices(GENERAL.length);
+    }
+    var idx = state.queue.shift();
+    return GENERAL[idx];
+  }
+
+  /* ---------------- stage logic ---------------- */
+  function stageFor(streak){
+    if(streak >= 365) return 5;
+    if(streak >= 100) return 4;
+    if(streak >= 30) return 3;
+    if(streak >= 7) return 2;
+    return 1;
+  }
+  function stageLabel(stage){
+    return ['','a spark','building','glowing','golden','legendary'][stage];
+  }
+
+  var flameStage = document.getElementById('flameStage');
+  function renderFlameStage(streak, animate){
+    var stage = stageFor(streak);
+    flameStage.className = 'flame-stage stage' + stage;
+    if(animate){
+      flameStage.style.transform = 'scale(1)';
+      requestAnimationFrame(function(){
+        flameStage.animate([
+          { transform: 'scale(0.9)' },
+          { transform: 'scale(1.08)' },
+          { transform: 'scale(1)' }
+        ], { duration: 700, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+      });
+    }
+  }
+
+  /* ---------------- render ---------------- */
+  var streakNumberEl = document.getElementById('streakNumber');
+  var streakLabelEl = document.getElementById('streakLabel');
+  var longestLineEl = document.getElementById('longestLine');
+  var checkInBtn = document.getElementById('checkInBtn');
+  var btnLabel = document.getElementById('btnLabel');
+  var messageText = document.getElementById('messageText');
+  var hearthGrid = document.getElementById('hearthGrid');
+
+  function renderStatic(){
+    streakNumberEl.textContent = state.streak;
+    streakLabelEl.textContent = state.streak === 1 ? 'day streak' : 'day streak';
+    longestLineEl.innerHTML = state.longest > 0
+      ? 'Longest streak: <strong>' + state.longest + '</strong> day' + (state.longest===1?'':'s')
+      : '';
+    renderFlameStage(state.streak, false);
+
+    var checkedToday = state.lastCheckIn === todayStr();
+    checkInBtn.classList.toggle('done', checkedToday);
+    checkInBtn.disabled = checkedToday;
+    btnLabel.textContent = checkedToday ? 'Studied Today' : 'I Studied Today';
+
+    renderHearth();
+  }
+
+  function renderHearth(days){
+    days = days || 84;
+    hearthGrid.innerHTML = '';
+    var historySet = {};
+    state.history.forEach(function(d){ historySet[d] = true; });
+    var today = todayStr();
+    var stage = stageFor(state.streak);
+    var stageClass = stage >= 5 ? 'legend' : (stage >= 4 ? 'gold' : '');
+
+    var cells = [];
+    for(var i=days-1;i>=0;i--){
+      cells.push(addDays(today, -i));
+    }
+    cells.forEach(function(d){
+      var cell = document.createElement('div');
+      cell.className = 'hearth-cell';
+      if(historySet[d]){
+        cell.classList.add('lit');
+        if(stageClass) cell.classList.add(stageClass);
+      }
+      if(d === today) cell.classList.add('today-cell');
+      hearthGrid.appendChild(cell);
+    });
+  }
+
+  function countUp(from, to, duration){
+    var startTime = null;
+    function step(ts){
+      if(startTime === null) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var val = Math.round(from + (to - from) * eased);
+      streakNumberEl.textContent = val;
+      if(progress < 1) requestAnimationFrame(step);
+      else streakNumberEl.textContent = to;
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ---------------- confetti ---------------- */
+  var confettiColors = ['#E67E22','#FF9D3D','#F5C64B','#FFE29A','#FFD54A','#8B6CFF'];
+  function burstConfetti(){
+    var particles = [];
+    var count = 90;
+    var w = canvas.width, h = canvas.height;
+    var originX = w/2, originY = h*0.32;
+    for(var i=0;i<count;i++){
+      var angle = (Math.random()*Math.PI) + Math.PI; // upward-ish spread
+      var speed = 4 + Math.random()*7;
+      particles.push({
+        x: originX, y: originY,
+        vx: Math.cos(angle)*speed*0.6 + (Math.random()-0.5)*4,
+        vy: -Math.abs(Math.sin(angle))*speed - 2,
+        size: 4 + Math.random()*5,
+        color: confettiColors[Math.floor(Math.random()*confettiColors.length)],
+        rot: Math.random()*Math.PI*2,
+        vrot: (Math.random()-0.5)*0.3,
+        gravity: 0.18 + Math.random()*0.08,
+        life: 0,
+        maxLife: 130 + Math.random()*60,
+        shape: Math.random() > 0.5 ? 'rect' : 'circle'
+      });
+    }
+    var start = null;
+    var duration = 2600;
+    function frame(ts){
+      if(!start) start = ts;
+      var elapsed = ts - start;
+      ctx.clearRect(0,0,w,h);
+      particles.forEach(function(p){
+        p.vy += p.gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vrot;
+        p.life++;
+        var alpha = Math.max(0, 1 - (p.life / p.maxLife));
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        if(p.shape === 'rect'){
+          ctx.fillRect(-p.size/2, -p.size/3, p.size, p.size*0.66);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0,0,p.size/2,0,Math.PI*2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+      if(elapsed < duration){
+        requestAnimationFrame(frame);
+      } else {
+        ctx.clearRect(0,0,w,h);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------------- sound ---------------- */
+  var audioCtx = null;
+  function playChime(){
+    if(state.muted) return;
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var now = audioCtx.currentTime;
+      var notes = [523.25, 659.25, 783.99]; // C5 E5 G5
+      notes.forEach(function(freq, i){
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        var t0 = now + i*0.09;
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(0.09, t0 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.7);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.75);
+      });
+    }catch(e){ /* audio not available */ }
+  }
+
+  /* ---------------- mute toggle ---------------- */
+  var muteBtn = document.getElementById('muteBtn');
+  var soundOn = document.getElementById('soundOnIcon');
+  var soundOff = document.getElementById('soundOffIcon');
+  function renderMute(){
+    soundOn.style.display = state.muted ? 'none' : 'block';
+    soundOff.style.display = state.muted ? 'block' : 'none';
+  }
+  muteBtn.addEventListener('click', function(){
+    state.muted = !state.muted;
+    renderMute();
+    saveState();
+  });
+
+  /* ---------------- check-in ---------------- */
+  checkInBtn.addEventListener('click', async function(){
+    var today = todayStr();
+    if(state.lastCheckIn === today) return; // already logged
+
+    var prevStreak = state.streak;
+    if(state.lastCheckIn && daysBetween(state.lastCheckIn, today) === 1){
+      state.streak = state.streak + 1;
+    } else {
+      state.streak = 1;
+    }
+    state.lastCheckIn = today;
+    if(state.history.indexOf(today) === -1) state.history.push(today);
+    state.longest = Math.max(state.longest, state.streak);
+
+    var msg = nextMessage(state.streak);
+
+    // button success state
+    checkInBtn.classList.add('done');
+    checkInBtn.disabled = true;
+    btnLabel.textContent = 'Studied Today';
+    checkInBtn.classList.add('pulse');
+    setTimeout(function(){ checkInBtn.classList.remove('pulse'); }, 550);
+
+    // count up + flame growth
+    countUp(prevStreak, state.streak, 900);
+    renderFlameStage(state.streak, true);
+    longestLineEl.innerHTML = 'Longest streak: <strong>' + state.longest + '</strong> day' + (state.longest===1?'':'s');
+
+    // message
+    messageText.classList.remove('show');
+    setTimeout(function(){
+      messageText.textContent = msg;
+      messageText.classList.add('show');
+    }, 250);
+
+    // hearth grid — add today lit with pop
+    renderHearth();
+    var todayCell = hearthGrid.querySelector('.today-cell');
+    if(todayCell){ todayCell.classList.add('lit','new'); }
+
+    burstConfetti();
+    playChime();
+
+    await saveState();
+  });
+
+  /* ---------------- init ---------------- */
+  (async function init(){
+    state = await loadState();
+    renderMute();
+    renderStatic();
+  })();
+
+})();
+</script>
+</body>
+</html>
