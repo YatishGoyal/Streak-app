@@ -8,31 +8,88 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
 
 :root{
-  --bg: #120E0A;
-  --bg-elevated: #1C140E;
-  --bg-card: #221810;
-  --line: rgba(247,239,226,0.08);
-  --line-soft: rgba(247,239,226,0.04);
+  /* dark mode — deep tinted charcoal, never pure black */
+  --bg: #12151B;
+  --surface: #1A1F27;
+  --surface-elevated: #212733;
+  --bg-elevated: #1A1F27;
+  --bg-card: #1E242E;
+  --line: rgba(237,239,243,0.08);
+  --line-soft: rgba(237,239,243,0.05);
 
-  --text-hi: #F7EFE2;
-  --text-mid: #C9B8A3;
-  --text-low: #8A7864;
+  --text-hi: #EDEFF3;
+  --text-mid: #A6AEBB;
+  --text-low: #6F7787;
 
-  --ember-1: #7A3B14;   /* stage 1: 0-6 */
-  --ember-1-glow: #C2560F;
-  --ember-2: #E67E22;   /* stage 2: 7-29 */
-  --ember-2-glow: #FF9D3D;
-  --ember-3: #F4A93A;   /* stage 3: 30-99 */
-  --ember-3-glow: #FFC466;
-  --gold-1: #F5C64B;    /* stage 4: 100-364 */
-  --gold-2: #FFE29A;
-  --legend-1: #FFD54A;  /* stage 5: 365+ */
-  --legend-2: #FF8A3D;
-  --legend-aura: #8B6CFF;
+  --accent: #E0752C;
+  --accent-strong: #F0924D;
+  --accent-soft: rgba(224,117,44,0.16);
+  --accent-on: #12151B;
+
+  --success: #4CC38A;
+  --warning: #F0C24D;
+  --error: #F2695F;
+
+  --focus-ring: rgba(224,117,44,0.45);
+
+  /* flame progression — derived from the accent family */
+  --ember-1: #6E4224;
+  --ember-1-glow: #E0752C;
+  --ember-2: #E0752C;
+  --ember-2-glow: #F0924D;
+  --ember-3: #F0924D;
+  --ember-3-glow: #F7B577;
+  --gold-1: #F0C24D;
+  --gold-2: #FBE1A0;
+  --legend-1: #F7CB5F;
+  --legend-2: #F0924D;
+  --legend-aura: #8C7BFF;
+
+  --glow-color: rgba(224,117,44,0.12);
 
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+:root[data-theme="light"]{
+  /* light mode — cool-tinted off-white, not pure white */
+  --bg: #EEF1F4;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-card: #E6EAEE;
+  --line: rgba(27,36,48,0.10);
+  --line-soft: rgba(27,36,48,0.05);
+
+  --text-hi: #1B2430;
+  --text-mid: #5B6572;
+  --text-low: #8B95A1;
+
+  --accent: #D9691F;
+  --accent-strong: #B8551A;
+  --accent-soft: rgba(217,105,31,0.10);
+  --accent-on: #FFFFFF;
+
+  --success: #2E9E6B;
+  --warning: #B87C16;
+  --error: #C94A40;
+
+  --focus-ring: rgba(217,105,31,0.35);
+
+  --ember-1: #C8894A;
+  --ember-1-glow: #D9691F;
+  --ember-2: #D9691F;
+  --ember-2-glow: #E88A3D;
+  --ember-3: #E88A3D;
+  --ember-3-glow: #F0A65E;
+  --gold-1: #B87C16;
+  --gold-2: #E8C374;
+  --legend-1: #D9A53A;
+  --legend-2: #E88A3D;
+  --legend-aura: #7C5CE0;
+
+  --glow-color: rgba(217,105,31,0.06);
 }
 
 *{ box-sizing: border-box; }
@@ -40,13 +97,14 @@ html,body{ height:100%; }
 body{
   margin:0;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(230,126,34,0.10), transparent 60%),
+    radial-gradient(ellipse 80% 50% at 50% -10%, var(--glow-color), transparent 60%),
     var(--bg);
   color: var(--text-hi);
   font-family: var(--font-body);
   min-height:100vh;
   -webkit-font-smoothing: antialiased;
   overflow-x:hidden;
+  transition: background-color .35s ease, color .35s ease;
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -91,15 +149,20 @@ body{
   cursor:pointer;
   transition: border-color .2s ease, color .2s ease, transform .15s ease;
 }
-.icon-btn:hover{ color: var(--text-hi); border-color: rgba(247,239,226,0.18); }
+.icon-btn:hover{ color: var(--text-hi); border-color: var(--line); background: var(--bg-card); }
 .icon-btn:active{ transform: scale(0.94); }
+.icon-btn:focus-visible{ outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 .icon-btn svg{ width:16px; height:16px; }
 
 /* ---------- hero ---------- */
 .hero{
   text-align:center;
-  padding: 18px 0 6px;
+  padding: 32px 20px 26px;
   position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  transition: background-color .35s ease, border-color .35s ease;
 }
 
 .flame-stage{
@@ -283,24 +346,25 @@ body{
   padding: 17px 20px;
   border-radius: 14px;
   border: none;
-  background: linear-gradient(180deg, var(--ember-1-glow), #A8460E);
-  color: #FFF3E6;
+  background: var(--accent);
+  color: var(--accent-on);
   font-family: var(--font-body);
   font-weight: 700;
   font-size: 16px;
   letter-spacing: 0.01em;
   cursor: pointer;
-  box-shadow: 0 10px 24px -8px rgba(194,86,15,0.55), inset 0 1px 0 rgba(255,255,255,0.15);
-  transition: transform .15s ease, box-shadow .3s ease, background .4s ease;
+  box-shadow: 0 8px 20px -8px var(--accent-soft), inset 0 1px 0 rgba(255,255,255,0.18);
+  transition: transform .15s ease, box-shadow .3s ease, background-color .3s ease;
 }
-.check-in-btn:hover{ transform: translateY(-1px); }
+.check-in-btn:hover{ transform: translateY(-1px); background: var(--accent-strong); }
 .check-in-btn:active{ transform: translateY(0) scale(0.98); }
 .check-in-btn:disabled{ cursor: default; }
+.check-in-btn:focus-visible{ outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 
 .check-in-btn.done{
-  background: linear-gradient(180deg, #3C4A3A, #2A362A);
-  box-shadow: 0 10px 24px -10px rgba(58,90,58,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
-  color: #D9F0D6;
+  background: var(--success);
+  box-shadow: 0 8px 20px -10px rgba(76,195,138,0.35), inset 0 1px 0 rgba(255,255,255,0.12);
+  color: var(--accent-on);
 }
 .check-in-btn .btn-icon{ width: 18px; height: 18px; flex-shrink:0; }
 .check-in-btn .check-mark{
@@ -339,9 +403,12 @@ body{
 
 /* hearth grid */
 .hearth-section{
-  margin-top: 40px;
-  border-top: 1px solid var(--line);
-  padding-top: 24px;
+  margin-top: 16px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  transition: background-color .35s ease, border-color .35s ease;
 }
 .hearth-heading{
   display:flex;
@@ -353,7 +420,7 @@ body{
   font-family: var(--font-display);
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-mid);
+  color: var(--text-hi);
   margin: 0;
   letter-spacing: 0.02em;
 }
@@ -375,12 +442,12 @@ body{
   transition: transform .2s ease;
 }
 .hearth-cell.lit{
-  background: linear-gradient(155deg, var(--ember-2-glow), var(--ember-1));
+  background: var(--ember-2-glow);
   border-color: transparent;
 }
-.hearth-cell.lit.gold{ background: linear-gradient(155deg, var(--gold-2), var(--gold-1)); }
-.hearth-cell.lit.legend{ background: linear-gradient(155deg, var(--legend-1), var(--legend-2)); box-shadow: 0 0 8px rgba(255,213,74,0.5); }
-.hearth-cell.today-cell{ outline: 1.5px solid var(--text-hi); outline-offset: 1px; }
+.hearth-cell.lit.gold{ background: var(--gold-1); }
+.hearth-cell.lit.legend{ background: var(--legend-1); box-shadow: 0 0 8px var(--accent-soft); }
+.hearth-cell.today-cell{ outline: 1.5px solid var(--accent); outline-offset: 1px; }
 .hearth-cell.new{ animation: cell-pop .5s cubic-bezier(.34,1.56,.64,1); }
 @keyframes cell-pop{
   0%{ transform: scale(0.4); }
@@ -420,10 +487,16 @@ body{
       </svg>
       Hearth
     </div>
-    <button class="icon-btn" id="muteBtn" title="Toggle sound" aria-label="Toggle sound">
-      <svg id="soundOnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>
-      <svg id="soundOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-    </button>
+    <div style="display:flex; gap:8px;">
+      <button class="icon-btn" id="themeBtn" title="Toggle light / dark" aria-label="Toggle light or dark theme">
+        <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+        <svg id="moonIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
+      <button class="icon-btn" id="muteBtn" title="Toggle sound" aria-label="Toggle sound">
+        <svg id="soundOnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.5 8.5a5 5 0 0 1 0 7"></path></svg>
+        <svg id="soundOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+      </button>
+    </div>
   </div>
 
   <div class="hero">
@@ -919,6 +992,34 @@ body{
       });
     }catch(e){ /* audio not available */ }
   }
+
+  /* ---------------- theme toggle ---------------- */
+  var THEME_KEY = "hearth_theme";
+  var themeBtn = document.getElementById('themeBtn');
+  var sunIcon = document.getElementById('sunIcon');
+  var moonIcon = document.getElementById('moonIcon');
+
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    sunIcon.style.display = theme === 'light' ? 'block' : 'none';
+    moonIcon.style.display = theme === 'light' ? 'none' : 'block';
+    try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+  }
+
+  function getPreferredTheme(){
+    try{
+      var saved = localStorage.getItem(THEME_KEY);
+      if(saved === 'light' || saved === 'dark') return saved;
+    }catch(e){}
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+  }
+
+  themeBtn.addEventListener('click', function(){
+    var current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  });
+
+  applyTheme(getPreferredTheme());
 
   /* ---------------- mute toggle ---------------- */
   var muteBtn = document.getElementById('muteBtn');
