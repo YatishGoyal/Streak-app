@@ -271,7 +271,7 @@ body{
 }
 .flame-stage.stage5 .aura-ring{
   opacity: 1;
-  background: radial-gradient(circle, transparent 48%, rgba(139,108,255,0.22) 60%, transparent 72%);
+  background: radial-gradient(circle, transparent 48%, color-mix(in srgb, var(--legend-aura) 30%, transparent) 60%, transparent 72%);
   animation: aura-pulse 3.4s ease-in-out infinite;
 }
 @keyframes aura-pulse{
@@ -332,6 +332,96 @@ body{
   margin-top: 4px;
 }
 .longest strong{ color: var(--text-mid); font-weight: 600; }
+
+.sub-line{
+  font-size: 12.5px;
+  color: var(--text-low);
+  margin-top: 8px;
+  min-height: 16px;
+  transition: color .3s ease;
+}
+.sub-line.pb-hit{
+  color: var(--accent-strong);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.sub-line.pb-pop{ animation: pb-pop 0.6s cubic-bezier(.34,1.56,.64,1); }
+@keyframes pb-pop{
+  0%{ transform: scale(0.85); opacity: 0.4; }
+  60%{ transform: scale(1.08); }
+  100%{ transform: scale(1); opacity: 1; }
+}
+
+.freeze-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  color: var(--text-mid);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 1;
+  transition: opacity .3s ease, transform .3s ease, border-color .3s ease;
+}
+.freeze-badge svg{ width: 13px; height: 13px; color: var(--legend-aura); flex-shrink: 0; }
+.freeze-badge .freeze-max{ color: var(--text-low); font-weight: 500; }
+.freeze-badge.zero{ opacity: 0.55; }
+.freeze-badge.zero svg{ color: var(--text-low); }
+.freeze-badge.pop{ animation: cell-pop 0.5s cubic-bezier(.34,1.56,.64,1); border-color: var(--legend-aura); }
+
+.freeze-toast{
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--legend-aura);
+  font-weight: 600;
+  max-width: 260px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .35s ease, transform .35s ease;
+}
+.freeze-toast.show{ opacity: 1; transform: translateY(0); }
+
+/* stats row */
+.stats-row{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+.stat-card{
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 10px;
+  text-align: center;
+  transition: background-color .35s ease, border-color .35s ease;
+}
+.stat-value{
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--text-hi);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.stat-of{
+  font-size: 14px;
+  color: var(--text-low);
+  font-weight: 600;
+}
+.stat-label{
+  font-size: 11px;
+  color: var(--text-low);
+  margin-top: 4px;
+  letter-spacing: 0.03em;
+}
 
 /* button */
 .check-in-btn{
@@ -403,7 +493,7 @@ body{
 
 /* hearth grid */
 .hearth-section{
-  margin-top: 16px;
+  margin-top: 14px;
   padding: 24px;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -447,6 +537,24 @@ body{
 }
 .hearth-cell.lit.gold{ background: var(--gold-1); }
 .hearth-cell.lit.legend{ background: var(--legend-1); box-shadow: 0 0 8px var(--accent-soft); }
+.hearth-cell.frozen{
+  background: var(--bg-card);
+  border-color: var(--line);
+  position: relative;
+  background-image: radial-gradient(circle at 50% 50%, var(--legend-aura) 0%, transparent 70%);
+  opacity: 0.8;
+}
+.hearth-cell.frozen::after{
+  content: "❄";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: var(--legend-aura);
+  line-height: 1;
+}
 .hearth-cell.today-cell{ outline: 1.5px solid var(--accent); outline-offset: 1px; }
 .hearth-cell.new{ animation: cell-pop .5s cubic-bezier(.34,1.56,.64,1); }
 @keyframes cell-pop{
@@ -471,9 +579,83 @@ body{
   z-index: 50;
 }
 
-@media (max-width: 380px){
+/* milestone celebration */
+.milestone-overlay{
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s ease;
+  padding: 20px;
+}
+.milestone-overlay.show{ opacity: 1; pointer-events: auto; }
+.milestone-card{
+  --milestone-glow: var(--accent);
+  background: var(--surface);
+  border: 1.5px solid color-mix(in srgb, var(--milestone-glow) 55%, var(--line));
+  border-radius: 20px;
+  padding: 32px 28px;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+  transform: scale(0.85) translateY(10px);
+  transition: transform .4s cubic-bezier(.34,1.56,.64,1), border-color .3s ease;
+  box-shadow: 0 24px 60px -20px rgba(0,0,0,0.35), 0 0 40px -12px color-mix(in srgb, var(--milestone-glow) 45%, transparent);
+}
+.milestone-overlay.show .milestone-card{ transform: scale(1) translateY(0); }
+.milestone-icon{
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+.milestone-title{
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-hi);
+  margin-bottom: 6px;
+}
+.milestone-sub{
+  font-size: 13.5px;
+  color: var(--text-mid);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.milestone-close{
+  border: none;
+  background: var(--milestone-glow, var(--accent));
+  color: var(--accent-on);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 11px 22px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: filter .2s ease, transform .15s ease;
+}
+.milestone-close:hover{ filter: brightness(1.1); }
+.milestone-close:active{ transform: scale(0.97); }
+
+@media (max-width: 420px){
+  .app{ padding: 20px 14px 48px; }
+  .hero{ padding: 26px 14px 22px; }
   .streak-number{ font-size: 52px; }
   .flame-stage{ width: 180px; height: 180px; }
+  .stats-row{ gap: 8px; }
+  .stat-card{ padding: 12px 6px; border-radius: 12px; }
+  .stat-value{ font-size: 19px; }
+  .stat-label{ font-size: 10px; }
+  .hearth-section{ padding: 18px; }
+  .hearth-grid{ gap: 4px; }
+  .check-in-btn{ font-size: 15px; padding: 15px 16px; }
+}
+
+@media (max-width: 340px){
+  .hearth-grid{ grid-template-columns: repeat(10, 1fr); }
 }
 </style>
 </head>
@@ -500,7 +682,7 @@ body{
   </div>
 
   <div class="hero">
-    <div class="flame-stage stage1" id="flameStage">
+    <div class="flame-stage stage1" id="flameStage" role="img" aria-label="Study streak flame">
       <div class="aura-ring"></div>
       <div class="particles">
         <div class="particle"></div><div class="particle"></div><div class="particle"></div>
@@ -514,23 +696,49 @@ body{
     </div>
 
     <div class="streak-block">
-      <div class="streak-number" id="streakNumber">0</div>
+      <div class="streak-number" id="streakNumber" aria-live="polite">0</div>
       <div class="streak-label" id="streakLabel">day streak</div>
-      <div class="longest" id="longestLine"></div>
+      <div class="sub-line" id="personalBestLine"></div>
+      <div class="freeze-badge" id="freezeBadge" title="Streak freezes protect one missed day">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="2" x2="12" y2="22"></line>
+          <line x1="4.5" y1="6" x2="19.5" y2="18"></line>
+          <line x1="19.5" y1="6" x2="4.5" y2="18"></line>
+          <line x1="12" y1="2" x2="9" y2="5"></line><line x1="12" y1="2" x2="15" y2="5"></line>
+          <line x1="12" y1="22" x2="9" y2="19"></line><line x1="12" y1="22" x2="15" y2="19"></line>
+        </svg>
+        <span id="freezeCount">0</span><span class="freeze-max">/2</span>
+      </div>
+      <div class="freeze-toast" id="freezeToast" role="status" aria-live="polite">🛡 Streak freeze earned — one missed day is now covered.</div>
     </div>
 
-    <button class="check-in-btn" id="checkInBtn">
-      <svg class="btn-icon flame-icon" viewBox="0 0 24 24" fill="none">
+    <button class="check-in-btn" id="checkInBtn" aria-pressed="false">
+      <svg class="btn-icon flame-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M12 2C9 6 7 8.5 7 12.5C7 16.6 9.7 19.5 12 21.5C14.3 19.5 17 16.6 17 12.5C17 11 16.5 9.5 15.5 8C15.7 9.5 15.2 10.5 14.5 11C14.7 9 13.7 6.8 12 4.5C11.8 6 11 7 10 7.7C9 8.4 8.3 9.5 8.3 11C8.3 8.5 9.5 6.5 12 2Z" fill="currentColor"/>
       </svg>
-      <svg class="btn-icon check-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="btn-icon check-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <polyline points="20 6 9 17 4 12"></polyline>
       </svg>
       <span id="btnLabel">I Studied Today</span>
     </button>
 
     <div class="message-wrap">
-      <div class="message-text" id="messageText"></div>
+      <div class="message-text" id="messageText" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-value" id="statLongest">0</div>
+      <div class="stat-label">Longest streak</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-label">Days studied</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statWeek">0<span class="stat-of">/7</span></div>
+      <div class="stat-label">This week</div>
     </div>
   </div>
 
@@ -539,10 +747,19 @@ body{
       <h2>Your hearth</h2>
       <span id="hearthRange">last 12 weeks</span>
     </div>
-    <div class="hearth-grid" id="hearthGrid"></div>
+    <div class="hearth-grid" id="hearthGrid" role="img" aria-label="Study history grid"></div>
   </div>
 
   <div class="footnote">Miss a day and the flame simply waits to be lit again.<br>No penalties here — only what you build.</div>
+</div>
+
+<div class="milestone-overlay" id="milestoneOverlay" role="dialog" aria-modal="true" aria-labelledby="milestoneTitle">
+  <div class="milestone-card">
+    <div class="milestone-icon" id="milestoneIcon">🔥</div>
+    <div class="milestone-title" id="milestoneTitle"></div>
+    <div class="milestone-sub" id="milestoneSub"></div>
+    <button class="milestone-close" id="milestoneClose">Keep going</button>
+  </div>
 </div>
 
 <canvas id="confettiCanvas"></canvas>
@@ -740,6 +957,7 @@ body{
   var canvas = document.getElementById('confettiCanvas');
   var ctx = canvas.getContext('2d');
   var state = null;
+  var pendingFreezeEarned = false;
 
   function resizeCanvas(){
     canvas.width = window.innerWidth;
@@ -776,7 +994,16 @@ body{
       lastCheckIn: null,
       history: [],
       queue: [],
-      muted: false
+      muted: false,
+      // — freeze system —
+      freezes: 0,
+      frozenDates: [],
+      freezeMilestonesGiven: [],   // which freeze-earning milestones (7, 30, ...) already granted a freeze
+      // — personal best —
+      personalBest: 0,             // permanent record, survives resets
+      justHitNewBest: false,       // one-shot flag consumed by the render pass
+      // — meaningful milestones —
+      milestonesUnlocked: []       // e.g. [7, 30, 100, 365]
     };
   }
 
@@ -795,7 +1022,13 @@ body{
       var raw = localStorage.getItem(STORE_KEY);
       if(raw){
         var parsed = JSON.parse(raw);
-        return Object.assign(defaultState(), parsed);
+        var merged = Object.assign(defaultState(), parsed);
+        // migration: older saves have no personalBest field — seed it from
+        // the existing longest streak so the record isn't lost.
+        if(!parsed.hasOwnProperty('personalBest')){
+          merged.personalBest = merged.longest;
+        }
+        return merged;
       }
     }catch(e){ console.error('storage read failed', e); }
     return defaultState();
@@ -814,6 +1047,39 @@ body{
     }
     var idx = state.queue.shift();
     return GENERAL[idx];
+  }
+
+  /* ---------------- streak freeze system ---------------- */
+  var FREEZE_MILESTONES = [7, 30]; // earn +1 freeze on reaching these streak lengths
+  var MAX_FREEZES = 2;
+
+  // Called only on a genuine studied check-in (never on a frozen day).
+  function maybeAwardFreeze(streakCount){
+    FREEZE_MILESTONES.forEach(function(m){
+      if(streakCount === m && state.freezeMilestonesGiven.indexOf(m) === -1){
+        state.freezeMilestonesGiven.push(m);
+        if(state.freezes < MAX_FREEZES){
+          state.freezes += 1;
+          pendingFreezeEarned = true;
+        }
+      }
+    });
+  }
+
+  var MEANINGFUL_MILESTONES = [
+    { day: 7,   name: "First Week" },
+    { day: 30,  name: "One Month" },
+    { day: 100, name: "Triple Digits" },
+    { day: 365, name: "One Year" }
+  ];
+
+  function checkMilestoneUnlock(streakCount){
+    var hit = MEANINGFUL_MILESTONES.find(function(m){ return m.day === streakCount; });
+    if(hit && state.milestonesUnlocked.indexOf(hit.day) === -1){
+      state.milestonesUnlocked.push(hit.day);
+      return hit;
+    }
+    return null;
   }
 
   /* ---------------- stage logic ---------------- */
@@ -847,24 +1113,143 @@ body{
   /* ---------------- render ---------------- */
   var streakNumberEl = document.getElementById('streakNumber');
   var streakLabelEl = document.getElementById('streakLabel');
-  var longestLineEl = document.getElementById('longestLine');
   var checkInBtn = document.getElementById('checkInBtn');
   var btnLabel = document.getElementById('btnLabel');
   var messageText = document.getElementById('messageText');
   var hearthGrid = document.getElementById('hearthGrid');
+  var statLongest = document.getElementById('statLongest');
+  var statTotal = document.getElementById('statTotal');
+  var statWeek = document.getElementById('statWeek');
+
+  function countThisWeek(){
+    var today = todayStr();
+    var count = 0;
+    for(var i=0;i<7;i++){
+      var d = addDays(today, -i);
+      if(state.history.indexOf(d) !== -1) count++;
+    }
+    return count;
+  }
+
+  var personalBestLine = document.getElementById('personalBestLine');
+  var freezeBadge = document.getElementById('freezeBadge');
+  var freezeCountEl = document.getElementById('freezeCount');
+
+  function renderSubLine(justHitBest){
+    if(justHitBest){
+      personalBestLine.textContent = "NEW PERSONAL BEST";
+      personalBestLine.className = 'sub-line pb-hit pb-pop';
+      setTimeout(function(){ personalBestLine.classList.remove('pb-pop'); }, 650);
+      return;
+    }
+    personalBestLine.className = 'sub-line';
+    if(state.personalBest > 0 && state.streak > 0 && state.streak < state.personalBest){
+      var gap = state.personalBest - state.streak;
+      if(gap <= 5){
+        personalBestLine.textContent = gap + " day" + (gap===1?'':'s') + " from your personal best";
+        return;
+      }
+    }
+    if(state.personalBest > 0 && (state.streak === 0 || state.streak >= state.personalBest)){
+      personalBestLine.textContent = "Personal best: " + state.personalBest;
+      return;
+    }
+    personalBestLine.textContent = '';
+  }
+
+  function renderFreezeBadge(justEarned){
+    freezeCountEl.textContent = state.freezes;
+    freezeBadge.classList.toggle('zero', state.freezes === 0);
+    if(justEarned){
+      freezeBadge.classList.add('pop');
+      setTimeout(function(){ freezeBadge.classList.remove('pop'); }, 550);
+    }
+  }
+
+  function updateStats(){
+    statLongest.textContent = state.longest;
+    statTotal.textContent = state.history.length;
+    statWeek.innerHTML = countThisWeek() + '<span class="stat-of">/7</span>';
+  }
+
+  function animateStatCards(){
+    document.querySelectorAll('.stat-card').forEach(function(card, i){
+      card.animate([
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.05)' },
+        { transform: 'scale(1)' }
+      ], { duration: 420, delay: i * 60, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+    });
+  }
+
+  /* ---------------- milestone celebration ---------------- */
+  var milestoneOverlay = document.getElementById('milestoneOverlay');
+  var milestoneIcon = document.getElementById('milestoneIcon');
+  var milestoneTitle = document.getElementById('milestoneTitle');
+  var milestoneSub = document.getElementById('milestoneSub');
+  var milestoneClose = document.getElementById('milestoneClose');
+
+  var MILESTONE_ICON = { 7: '🔥', 30: '🕯️', 100: '🏅', 365: '🏆' };
+  // border/glow the card in the same color the flame itself turns at that streak length —
+  // ties the celebration to the existing flame progression instead of inventing a new palette.
+  var MILESTONE_GLOW_VAR = { 7: '--ember-2-glow', 30: '--ember-3-glow', 100: '--gold-1', 365: '--legend-1' };
+
+  function showMilestoneCelebration(milestone){
+    milestoneIcon.textContent = MILESTONE_ICON[milestone.day] || '🔥';
+    milestoneTitle.textContent = milestone.name;
+    milestoneSub.textContent = milestone.day + ' days of showing up for yourself.';
+    var glowVar = MILESTONE_GLOW_VAR[milestone.day] || '--accent';
+    var glowColor = getComputedStyle(document.documentElement).getPropertyValue(glowVar).trim();
+    document.querySelector('.milestone-card').style.setProperty('--milestone-glow', glowColor);
+    milestoneOverlay.classList.add('show');
+    if(milestone.day !== 7){ burstConfetti(1.3); }
+  }
+  function hideMilestoneCelebration(){
+    milestoneOverlay.classList.remove('show');
+  }
+  milestoneClose.addEventListener('click', hideMilestoneCelebration);
+  milestoneOverlay.addEventListener('click', function(e){
+    if(e.target === milestoneOverlay) hideMilestoneCelebration();
+  });
+
+  /* ---------------- freeze-earned toast (small celebration) ---------------- */
+  var freezeToast = document.getElementById('freezeToast');
+  function showFreezeEarnedToast(){
+    freezeToast.classList.add('show');
+    freezeBadge.classList.add('pop');
+    clearTimeout(freezeToast._hideTimer);
+    freezeToast._hideTimer = setTimeout(function(){
+      freezeToast.classList.remove('show');
+    }, 3200);
+  }
 
   function renderStatic(){
     streakNumberEl.textContent = state.streak;
-    streakLabelEl.textContent = state.streak === 1 ? 'day streak' : 'day streak';
-    longestLineEl.innerHTML = state.longest > 0
-      ? 'Longest streak: <strong>' + state.longest + '</strong> day' + (state.longest===1?'':'s')
-      : '';
+    streakLabelEl.textContent = 'day streak';
     renderFlameStage(state.streak, false);
+    updateStats();
+    renderSubLine(false);
+    renderFreezeBadge(false);
 
-    var checkedToday = state.lastCheckIn === todayStr();
+    var today = todayStr();
+    var checkedToday = state.lastCheckIn === today;
     checkInBtn.classList.toggle('done', checkedToday);
     checkInBtn.disabled = checkedToday;
+    checkInBtn.setAttribute('aria-pressed', checkedToday ? 'true' : 'false');
     btnLabel.textContent = checkedToday ? 'Studied Today' : 'I Studied Today';
+
+    // gentle, guilt-free notices — shown once on load, never phrased as a penalty.
+    if(!checkedToday && state.lastCheckIn && daysBetween(state.lastCheckIn, today) > 1 && state.streak === 0 && state.longest > 0){
+      messageText.textContent = "New flame, same fireplace. Every streak you've built is still on your hearth below.";
+      messageText.classList.add('show');
+    } else if(!checkedToday && state.lastCheckIn === addDays(today, -1) && state.freezes > 0){
+      // smart freeze warning — only surfaced when relevant, never nagging
+      messageText.textContent = "Your streak is waiting. 🛡 " + state.freezes + " freeze available.";
+      messageText.classList.add('show');
+    } else if(!checkedToday && state.lastCheckIn === addDays(today, -1)){
+      messageText.textContent = "Day " + (state.streak + 1) + " is waiting whenever you're ready.";
+      messageText.classList.add('show');
+    }
 
     renderHearth();
   }
@@ -874,6 +1259,8 @@ body{
     hearthGrid.innerHTML = '';
     var historySet = {};
     state.history.forEach(function(d){ historySet[d] = true; });
+    var frozenSet = {};
+    (state.frozenDates || []).forEach(function(d){ frozenSet[d] = true; });
     var today = todayStr();
     var stage = stageFor(state.streak);
     var stageClass = stage >= 5 ? 'legend' : (stage >= 4 ? 'gold' : '');
@@ -885,7 +1272,12 @@ body{
     cells.forEach(function(d){
       var cell = document.createElement('div');
       cell.className = 'hearth-cell';
-      if(historySet[d]){
+      if(frozenSet[d]){
+        // a frozen day preserves the streak but was never studied — shown distinctly,
+        // and never counted as lit / studied.
+        cell.classList.add('frozen');
+        cell.setAttribute('aria-label', 'Streak freeze used');
+      } else if(historySet[d]){
         cell.classList.add('lit');
         if(stageClass) cell.classList.add(stageClass);
       }
@@ -909,10 +1301,17 @@ body{
   }
 
   /* ---------------- confetti ---------------- */
-  var confettiColors = ['#E67E22','#FF9D3D','#F5C64B','#FFE29A','#FFD54A','#8B6CFF'];
-  function burstConfetti(){
+  function getThemeColors(){
+    var cs = getComputedStyle(document.documentElement);
+    var vars = ['--accent','--accent-strong','--gold-1','--gold-2','--legend-1','--legend-aura','--success'];
+    return vars.map(function(v){ return cs.getPropertyValue(v).trim(); }).filter(Boolean);
+  }
+  function burstConfetti(intensity){
+    intensity = intensity || 1;
+    var confettiColors = getThemeColors();
+    if(confettiColors.length === 0) confettiColors = ['#E0752C','#F0924D','#F0C24D'];
     var particles = [];
-    var count = 90;
+    var count = Math.round(90 * intensity);
     var w = canvas.width, h = canvas.height;
     var originX = w/2, originY = h*0.32;
     for(var i=0;i<count;i++){
@@ -993,6 +1392,31 @@ body{
     }catch(e){ /* audio not available */ }
   }
 
+  // a quieter, cooler two-note chime — distinct from the main check-in
+  // chime so earning a freeze reads as its own small moment.
+  function playFreezeChime(){
+    if(state.muted) return;
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var now = audioCtx.currentTime;
+      var notes = [880, 1108.73]; // A5, C#6 — bright, glassy, brief
+      notes.forEach(function(freq, i){
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        var t0 = now + i*0.11;
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(0.055, t0 + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.5);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.55);
+      });
+    }catch(e){ /* audio not available */ }
+  }
+
   /* ---------------- theme toggle ---------------- */
   var THEME_KEY = "hearth_theme";
   var themeBtn = document.getElementById('themeBtn');
@@ -1041,20 +1465,41 @@ body{
     if(state.lastCheckIn === today) return; // already logged
 
     var prevStreak = state.streak;
+    var isFreshStart = false;
+    var previousBestForRecovery = 0;
+
     if(state.lastCheckIn && daysBetween(state.lastCheckIn, today) === 1){
       state.streak = state.streak + 1;
     } else {
+      // a genuinely new streak is beginning
+      if(state.streak === 0 && state.longest > 0){
+        isFreshStart = true;
+        previousBestForRecovery = state.longest;
+      }
       state.streak = 1;
     }
     state.lastCheckIn = today;
     if(state.history.indexOf(today) === -1) state.history.push(today);
-    state.longest = Math.max(state.longest, state.streak);
 
-    var msg = nextMessage(state.streak);
+    var isNewPersonalBest = state.streak > state.personalBest && state.personalBest > 0;
+    state.longest = Math.max(state.longest, state.streak);
+    state.personalBest = Math.max(state.personalBest, state.streak);
+
+    pendingFreezeEarned = false;
+    maybeAwardFreeze(state.streak);
+    var unlockedMilestone = checkMilestoneUnlock(state.streak);
+
+    var msg;
+    if(isFreshStart){
+      msg = "Your last flame burned for " + previousBestForRecovery + " day" + (previousBestForRecovery===1?'':'s') + ". Let's see where this one goes.";
+    } else {
+      msg = nextMessage(state.streak);
+    }
 
     // button success state
     checkInBtn.classList.add('done');
     checkInBtn.disabled = true;
+    checkInBtn.setAttribute('aria-pressed', 'true');
     btnLabel.textContent = 'Studied Today';
     checkInBtn.classList.add('pulse');
     setTimeout(function(){ checkInBtn.classList.remove('pulse'); }, 550);
@@ -1062,7 +1507,10 @@ body{
     // count up + flame growth
     countUp(prevStreak, state.streak, 900);
     renderFlameStage(state.streak, true);
-    longestLineEl.innerHTML = 'Longest streak: <strong>' + state.longest + '</strong> day' + (state.longest===1?'':'s');
+    updateStats();
+    animateStatCards();
+    renderSubLine(isNewPersonalBest);
+    renderFreezeBadge(pendingFreezeEarned);
 
     // message
     messageText.classList.remove('show');
@@ -1076,8 +1524,27 @@ body{
     var todayCell = hearthGrid.querySelector('.today-cell');
     if(todayCell){ todayCell.classList.add('lit','new'); }
 
-    burstConfetti();
-    playChime();
+    // celebration tiers:
+    // strong — new personal best, or a major milestone (30/100/365)
+    // small  — freeze earned, or a regular milestone (7)
+    var isMajorMilestone = unlockedMilestone && unlockedMilestone.day !== 7;
+    if(isNewPersonalBest || isMajorMilestone){
+      burstConfetti(1.6);
+      playChime();
+    } else {
+      burstConfetti(1);
+      playChime();
+    }
+
+    if(pendingFreezeEarned){
+      // small, distinct celebration for earning a freeze — a quiet toast + soft chime,
+      // separate from the day's regular check-in feedback so it doesn't get lost.
+      setTimeout(function(){ showFreezeEarnedToast(); playFreezeChime(); }, 900);
+    }
+
+    if(unlockedMilestone){
+      setTimeout(function(){ showMilestoneCelebration(unlockedMilestone); }, isNewPersonalBest ? 1400 : (pendingFreezeEarned ? 1900 : 500));
+    }
 
     saveState();
   });
@@ -1085,6 +1552,33 @@ body{
   /* ---------------- init ---------------- */
   (function init(){
     state = loadState();
+
+    // Reconcile any days that passed since the app was last open, applying
+    // freeze protection one missed day at a time. A freeze only ever covers
+    // a single missed day — a gap of 2+ days always breaks the streak,
+    // consuming at most one freeze along the way (never more).
+    var today = todayStr();
+    if(state.lastCheckIn && state.lastCheckIn !== today){
+      var gap = daysBetween(state.lastCheckIn, today); // days since last check-in
+      var missedDays = gap - 1; // days with no check-in and no freeze applied yet
+
+      if(missedDays === 1 && state.freezes > 0){
+        // exactly one missed day, and a freeze is available — protect it
+        var frozenDay = addDays(state.lastCheckIn, 1);
+        if(state.frozenDates.indexOf(frozenDay) === -1){
+          state.frozenDates.push(frozenDay);
+        }
+        state.freezes -= 1;
+        state.lastCheckIn = frozenDay; // streak continuity now runs through the frozen day
+        // streak itself is untouched — a freeze preserves, never increases
+      } else if(missedDays >= 1){
+        // one missed day with no freeze available, or a multi-day gap —
+        // the streak has genuinely lapsed.
+        state.streak = 0;
+      }
+      saveState();
+    }
+
     renderMute();
     renderStatic();
   })();
